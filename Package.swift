@@ -1,0 +1,26 @@
+// swift-tools-version: 6.2
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "acp-swift-sdk",
+    products: [
+        // Products define the executables and libraries a package produces, making them visible to other packages.
+        .library(
+            name: "acp-swift-sdk",
+            targets: ["acp-swift-sdk"]
+        ),
+    ],
+    targets: [
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "acp-swift-sdk"
+        ),
+        .testTarget(
+            name: "acp-swift-sdkTests",
+            dependencies: ["acp-swift-sdk"]
+        ),
+    ]
+)
