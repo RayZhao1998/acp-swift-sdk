@@ -8,19 +8,19 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "acp-swift-sdk",
-            targets: ["acp-swift-sdk"]
+            name: "ACP",
+            targets: ["ACP"]
         ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "acp-swift-sdk"
+            name: "ACP"
         ),
         .testTarget(
-            name: "acp-swift-sdkTests",
-            dependencies: ["acp-swift-sdk"]
+            name: "ACPTests",
+            dependencies: ["ACP"]
         ),
     ]
 )
