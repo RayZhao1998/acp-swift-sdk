@@ -1,10 +1,3 @@
-//
-//   Model.swift
-//  acp-swift-sdk
-//
-//  Created by Ziyuan Zhao on 2025/12/10.
-//
-
 import Foundation
 
 private let jsonrpcVersion = "2.0"
