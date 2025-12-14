@@ -46,7 +46,7 @@ The [Sources/Example](Sources/Example) directory contains a simple implementatio
 You can run the example from your terminal:
 
 ```bash
-swift run Example
+swift run ACPKimiExample
 ```
 
 *Note: You may need to have an ACP-compatible agent (like `kimi`) installed and available in your PATH, or configure the `ACP_AGENT_BIN` environment variable.*
