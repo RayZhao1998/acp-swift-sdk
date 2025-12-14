@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Swift package (`Package.swift`) with library target `ACP` under `Sources/ACP` and CLI example target `Example` under `Sources/Example`.
+- Swift package (`Package.swift`) with library target `ACP` under `Sources/ACP` and CLI example target `ACPKimiExample` under `Sources/Example`.
 - Core modules: protocol definitions and helpers in `Sources/ACP/Base`, agent-side interfaces in `Sources/ACP/Agent`, and client-side plumbing in `Sources/ACP/Client`.
 - Tests live in `Tests/ACPTests`, using async integration checks against a running ACP agent.
 - Protocol JSON schemas are stored in `schema/` for reference and regeneration.
@@ -9,7 +9,7 @@
 ## Build, Test, and Development Commands
 - `swift build` — compile all targets.
 - `swift test` — run the test suite; requires a runnable ACP agent (`kimi --acp` or `ACP_AGENT_BIN`) to avoid skipped assertions.
-- `swift run Example` — launch the sample client and connect to the configured agent.
+- `swift run ACPKimiExample` — launch the sample client and connect to the configured agent.
 - When formatting is available, run `swift format --in-place --recursive Sources Tests` to apply `.swift-format` rules.
 
 ## Coding Style & Naming Conventions

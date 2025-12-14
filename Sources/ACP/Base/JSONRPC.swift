@@ -38,7 +38,7 @@ public struct JSONRPCSuccessResponse: Codable, Sendable {
   }
 }
 
-public struct JSONRPCErrorResponse: Decodable, Sendable {
+public struct JSONRPCErrorResponse: Codable, Sendable {
   public let jsonrpc: String
   public let id: String
   public let error: JSONRPCError

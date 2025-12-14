@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol Agent {
+public protocol Agent: Actor {
   /// Establishes the connection with a client and negotiates protocol capabilities.
   ///
   /// This method is called once at the beginning of the connection to:
@@ -100,7 +100,7 @@ extension Agent {
   /// - Stream the entire conversation history back to the client via notifications
   ///
   /// See protocol docs: [Loading Sessions](https://agentclientprotocol.com/protocol/session-setup#loading-sessions)
-  func loadSession(
+  public func loadSession(
     _ params: LoadSessionRequest
   ) async throws -> LoadSessionResponse {
     throw ACPError.methodNotFound("session/load")

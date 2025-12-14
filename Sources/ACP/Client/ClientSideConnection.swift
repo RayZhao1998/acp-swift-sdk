@@ -64,7 +64,7 @@ public actor ClientSideConnection: Agent {
     }
 
     return Connection(
-      requesthandler: requestHandler,
+      requestHandler: requestHandler,
       notificationHandler: notificationHandler,
       stream: stream)
   }()

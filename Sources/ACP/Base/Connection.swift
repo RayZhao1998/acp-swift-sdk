@@ -4,12 +4,6 @@ struct JSONRPCRemoteError: Error, Sendable {
   let error: JSONRPCError
 }
 
-public protocol MessageStream: Actor {
-  func read() async throws -> JSONRPCMessage?
-  func write(_ message: JSONRPCMessage) async throws
-  func close() async
-}
-
 public actor Connection: Sendable {
   typealias RequestHandler = @Sendable (String, AnyCodable?) async throws -> Any?
   typealias NotificationHandler = @Sendable (String, AnyCodable?) async throws -> Void
@@ -25,11 +19,11 @@ public actor Connection: Sendable {
   private var closedContinuation: CheckedContinuation<Void, Never>?
 
   init(
-    requesthandler: @escaping RequestHandler,
+    requestHandler: @escaping RequestHandler,
     notificationHandler: @escaping NotificationHandler,
     stream: MessageStream
   ) {
-    self.requestHandler = requesthandler
+    self.requestHandler = requestHandler
     self.notificationHandler = notificationHandler
     self.stream = stream
     Task {
