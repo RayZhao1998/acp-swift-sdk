@@ -1104,13 +1104,13 @@ public struct PlanEntry: Codable, Sendable {
   let status: PlanEntryStatus
 }
 
-enum PlanEntryPriority: String, Codable {
+public enum PlanEntryPriority: String, Codable, Sendable {
   case high = "high"
   case medium = "medium"
   case low = "low"
 }
 
-enum PlanEntryStatus: String, Codable {
+public enum PlanEntryStatus: String, Codable, Sendable {
   case pending = "pending"
   case in_progress = "in_progress"
   case completed = "completed"
@@ -1631,22 +1631,22 @@ public enum SessionUpdate: Codable, Sendable {
 }
 
 /// Request parameters for setting a session mode.
-struct SetSessionModeRequest: Codable {
+public struct SetSessionModeRequest: Codable, Sendable {
   /// The _meta property is reserved by ACP to allow clients and agents to attach additional
   /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// The ID of the mode to set.
-  let modeId: SessionModeId
+  public let modeId: SessionModeId
   /// The ID of the session to set the mode for.
-  let sessionId: SessionId
+  public let sessionId: SessionId
 }
 
 /// Response to `session/set_mode` method.
-struct SetSessionModeResponse: Codable {
-  let _meta: [String: AnyCodable]?
+public struct SetSessionModeResponse: Codable, Sendable {
+  public let _meta: [String: AnyCodable]?
 }
 
 public enum StopReason: String, Codable, Sendable {
