@@ -16,7 +16,7 @@ Add the package to your `Package.swift` dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-username/acp-swift-sdk.git", branch: "main")
+    .package(url: "https://github.com/RayZhao1998/acp-swift-sdk.git", branch: "main")
 ]
 ```
 
