@@ -98,7 +98,11 @@ public actor Connection: Sendable {
     let successResponse = try await withCheckedThrowingContinuation { cont in
       pendingResponses["\(id)"] = cont
       Task {
-        try await stream.write(message)
+        do {
+          try await stream.write(message)
+        } catch {
+          cont.resume(throwing: error)
+        }
       }
     }
 
