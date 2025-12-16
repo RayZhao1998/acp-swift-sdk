@@ -32,7 +32,6 @@ struct ACPKimiExampleApp {
 
     let _ = try await connection.initialize(
       InitializeRequest(
-        protocolVersion: PROTOCOL_VERSION,
         clientCapabilities: ClientCapabilities(
           _meta: nil,
           fs: FileSystemCapability(_meta: nil, readTextFile: true, writeTextFile: true),
@@ -40,11 +39,10 @@ struct ACPKimiExampleApp {
         ),
         clientInfo: Implementation(
           name: "ACP Swift SDK Example",
-          version: "1.0.0",
           title: "ACP Swift CLI",
-          _meta: nil,
+          version: "1.0.0",
         ),
-        _meta: nil,
+        protocolVersion: PROTOCOL_VERSION
       )
     )
 
@@ -53,7 +51,7 @@ struct ACPKimiExampleApp {
     // New Session
     let newSessionResponse = try await connection.newSession(
       NewSessionRequest(
-        cwd: cwd, mcpServers: [], _meta: nil))
+        cwd: cwd, mcpServers: []))
 
     let sessionId = newSessionResponse.sessionId
 
@@ -69,7 +67,7 @@ struct ACPKimiExampleApp {
 
       do {
         let promptResponse = try await connection.prompt(
-          PromptRequest(sessionId: sessionId, prompt: [.text(.init(text: line))]))
+          PromptRequest(prompt: [.text(.init(text: line))], sessionId: sessionId))
 
         print()
         print("Prompt response received with stop reason: \(promptResponse.stopReason)")
