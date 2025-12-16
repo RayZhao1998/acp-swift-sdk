@@ -37,7 +37,7 @@ extension Client {
   ///
   /// See protocol docs: [Client](https://agentclientprotocol.com/protocol/overview#client)
   public func writeTextFile(params: WriteTextFileRequest) async throws -> WriteTextFileResponse {
-    throw ACPError.methodNotFound("writeTextFile")
+    throw ACPError.methodNotFound(ClientMethod.fsWriteTextFile.rawValue)
   }
 
   /// Reads content from a text file in the client's file system.
@@ -47,7 +47,7 @@ extension Client {
   ///
   /// See protocol docs: [Client](https://agentclientprotocol.com/protocol/overview#client)
   public func readTextFile(params: ReadTextFileRequest) async throws -> ReadTextFileResponse {
-    throw ACPError.methodNotFound("readTextFile")
+    throw ACPError.methodNotFound(ClientMethod.fsReadTextFile.rawValue)
   }
 
   /// Creates a new terminal to execute a command.
@@ -58,10 +58,10 @@ extension Client {
   /// to free resources.
   ///
   /// See protocol docs: [Terminal Documentation](https://agentclientprotocol.com/protocol/terminals)
-  public func createTerminalSession(params: CreateTerminalRequest) async throws
+  public func createTerminal(params: CreateTerminalRequest) async throws
     -> CreateTerminalResponse
   {
-    throw ACPError.methodNotFound("createTerminalSession")
+    throw ACPError.methodNotFound(ClientMethod.terminalCreate.rawValue)
   }
 
   /// Gets the current output and exit status of a terminal.
@@ -71,7 +71,7 @@ extension Client {
   ///
   /// See protocol docs: [Getting Terminal Output](https://agentclientprotocol.com/protocol/terminals#getting-output)
   public func terminalOutput(params: TerminalOutputRequest) async throws -> TerminalOutputResponse {
-    throw ACPError.methodNotFound("terminalOutput")
+    throw ACPError.methodNotFound(ClientMethod.terminalOutput.rawValue)
   }
 
   /// Releases a terminal and frees all associated resources.
@@ -86,7 +86,7 @@ extension Client {
   public func releaseTerminal(params: ReleaseTerminalRequest) async throws
     -> ReleaseTerminalResponse
   {
-    throw ACPError.methodNotFound("releaseTerminal")
+    throw ACPError.methodNotFound(ClientMethod.terminalRelease.rawValue)
   }
 
   /// Waits for a terminal command to exit and returns its exit status.
@@ -98,7 +98,7 @@ extension Client {
   public func waitForTerminalExit(params: WaitForTerminalExitRequest) async throws
     -> WaitForTerminalExitResponse
   {
-    throw ACPError.methodNotFound("waitForTerminalExit")
+    throw ACPError.methodNotFound(ClientMethod.terminalWaitForExit.rawValue)
   }
 
   /// Kills a terminal command without releasing the terminal.
@@ -115,7 +115,7 @@ extension Client {
   public func killTerminal(params: KillTerminalCommandRequest) async throws
     -> KillTerminalCommandResponse
   {
-    throw ACPError.methodNotFound("killTerminal")
+    throw ACPError.methodNotFound(ClientMethod.terminalKill.rawValue)
   }
 
   /// Extension method
@@ -127,13 +127,13 @@ extension Client {
   public func extMethod(method: String, params: [String: AnyCodable]) async throws
     -> [String: AnyCodable]
   {
-    throw ACPError.methodNotFound("extMethod")
+    throw ACPError.methodNotFound(method)
   }
 
   /// Extension notification
   ///
   /// Allows the Agent to send an arbitrary notification that is not part of the ACP spec.
   public func extNotification(method: String, params: [String: AnyCodable]) async throws {
-    throw ACPError.methodNotFound("extNotification")
+    throw ACPError.methodNotFound(method)
   }
 }

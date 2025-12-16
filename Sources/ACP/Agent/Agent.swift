@@ -103,7 +103,66 @@ extension Agent {
   public func loadSession(
     _ params: LoadSessionRequest
   ) async throws -> LoadSessionResponse {
-    throw ACPError.methodNotFound("session/load")
+    throw ACPError.methodNotFound(AgentMethod.sessionLoad.rawValue)
+  }
+
+  
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Forks an existing session to create a new independent session.
+  ///
+  /// Creates a new session based on the context of an existing one, allowing
+  /// operations like generating summaries without affecting the original session's history.
+  ///
+  /// This method is only available if the agent advertises the `session.fork` capability.
+  ///
+  /// @experimental
+  ///
+  public func forkSession(
+    _ params: ForkSessionRequest,
+  ) async throws -> ForkSessionResponse {
+    throw ACPError.methodNotFound(AgentMethod.sessionFork.rawValue)
+  }
+
+  ///
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Lists existing sessions from the agent.
+  ///
+  /// This method is only available if the agent advertises the `listSessions` capability.
+  ///
+  /// Returns a list of sessions with metadata like session ID, working directory,
+  /// title, and last update time. Supports filtering by working directory and
+  /// cursor-based pagination.
+  ///
+  public func listSessions(
+    _ params: ListSessionsRequest,
+  ) async throws -> ListSessionsResponse {
+    throw ACPError.methodNotFound(AgentMethod.sessionList.rawValue)
+  }
+
+  ///
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Resumes an existing session without returning previous messages.
+  ///
+  /// This method is only available if the agent advertises the `session.resume` capability.
+  ///
+  /// The agent should resume the session context, allowing the conversation to continue
+  /// without replaying the message history (unlike `session/load`).
+  ///
+  /// @experimental
+  ///
+  public func resumeSession(
+    _ params: ResumeSessionRequest,
+  ) async throws -> ResumeSessionResponse {
+    throw ACPError.methodNotFound(AgentMethod.sessionResume.rawValue)
   }
 
   /// Sets the operational mode for a session.
@@ -122,6 +181,48 @@ extension Agent {
   func setSessionMode(
     _ params: SetSessionModeRequest
   ) async throws -> SetSessionModeResponse {
-    throw ACPError.methodNotFound("session/set_mode")
+    throw ACPError.methodNotFound(AgentMethod.sessionSetMode.rawValue)
+  }
+
+  ///
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Select a model for a given session.
+  ///
+  /// @experimental
+  ///
+  public func setSessionModel(
+    _ params: SetSessionModelRequest,
+  ) async throws -> SetSessionModelResponse {
+    throw ACPError.methodNotFound(AgentMethod.sessionSetModel.rawValue)
+  }
+
+  ///
+  /// Extension method
+  ///
+  /// Allows the Client to send an arbitrary request that is not part of the ACP spec.
+  ///
+  /// To help avoid conflicts, it's a good practice to prefix extension
+  /// methods with a unique identifier such as domain name.
+  ///
+  public func extMethod(
+    method: String,
+    params: AnyCodable,
+  ) async throws -> AnyCodable {
+    throw ACPError.methodNotFound(method)
+  }
+
+  ///
+  /// Extension notification
+  ///
+  /// Allows the Client to send an arbitrary notification that is not part of the ACP spec.
+  ///
+  public func extNotification(
+    method: String,
+    params: AnyCodable,
+  ) async throws {
+    throw ACPError.methodNotFound(method)
   }
 }
