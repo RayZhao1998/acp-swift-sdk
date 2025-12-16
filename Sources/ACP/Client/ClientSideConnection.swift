@@ -22,7 +22,7 @@ public actor ClientSideConnection: Agent {
       case ClientMethod.terminalCreate.rawValue:
         let decodedParams = try JSONDecoder().decode(
           CreateTerminalRequest.self, from: JSONEncoder().encode(params))
-        return try await self.client.createTerminalSession(params: decodedParams)
+        return try await self.client.createTerminal(params: decodedParams)
       case ClientMethod.terminalOutput.rawValue:
         let decodedParams = try JSONDecoder().decode(
           TerminalOutputRequest.self,
