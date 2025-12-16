@@ -677,18 +677,29 @@ public enum ContentBlock: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+    guard let typeKey = _DiscriminatorCodingKey(stringValue: "type") else {
+      throw EncodingError.invalidValue(
+        self,
+        EncodingError.Context(
+          codingPath: encoder.codingPath, debugDescription: "Unable to encode discriminator key"))
+    }
+    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
     switch self {
     case .text(let value):
-      try container.encode(value)
+      try container.encode("text", forKey: typeKey)
+      try value.encode(to: encoder)
     case .image(let value):
-      try container.encode(value)
+      try container.encode("image", forKey: typeKey)
+      try value.encode(to: encoder)
     case .audio(let value):
-      try container.encode(value)
+      try container.encode("audio", forKey: typeKey)
+      try value.encode(to: encoder)
     case .resource_link(let value):
-      try container.encode(value)
+      try container.encode("resource_link", forKey: typeKey)
+      try value.encode(to: encoder)
     case .resource(let value):
-      try container.encode(value)
+      try container.encode("resource", forKey: typeKey)
+      try value.encode(to: encoder)
     }
   }
 }
@@ -1907,12 +1918,21 @@ public enum RequestPermissionOutcome: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+    guard let key = _DiscriminatorCodingKey(stringValue: "outcome") else {
+      throw EncodingError.invalidValue(
+        self,
+        EncodingError.Context(
+          codingPath: encoder.codingPath,
+          debugDescription: "Unable to encode discriminator key"))
+    }
+    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
     switch self {
     case .cancelled(let value):
-      try container.encode(value)
+      try container.encode("cancelled", forKey: key)
+      try value.encode(to: encoder)
     case .selected(let value):
-      try container.encode(value)
+      try container.encode("selected", forKey: key)
+      try value.encode(to: encoder)
     }
   }
 }
@@ -2137,10 +2157,17 @@ public enum SessionConfigOption: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+    guard let typeKey = _DiscriminatorCodingKey(stringValue: "type") else {
+      throw EncodingError.invalidValue(
+        self,
+        EncodingError.Context(
+          codingPath: encoder.codingPath, debugDescription: "Unable to encode discriminator key"))
+    }
+    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
     switch self {
     case .select(let value):
-      try container.encode(value)
+      try container.encode("select", forKey: typeKey)
+      try value.encode(to: encoder)
     }
   }
 }
@@ -2669,28 +2696,44 @@ public enum SessionUpdate: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+    guard let key = _DiscriminatorCodingKey(stringValue: "sessionUpdate") else {
+      throw EncodingError.invalidValue(
+        self,
+        EncodingError.Context(
+          codingPath: encoder.codingPath, debugDescription: "Unable to encode discriminator key"))
+    }
+    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
     switch self {
     case .user_message_chunk(let value):
-      try container.encode(value)
+      try container.encode("user_message_chunk", forKey: key)
+      try value.encode(to: encoder)
     case .agent_message_chunk(let value):
-      try container.encode(value)
+      try container.encode("agent_message_chunk", forKey: key)
+      try value.encode(to: encoder)
     case .agent_thought_chunk(let value):
-      try container.encode(value)
+      try container.encode("agent_thought_chunk", forKey: key)
+      try value.encode(to: encoder)
     case .tool_call(let value):
-      try container.encode(value)
+      try container.encode("tool_call", forKey: key)
+      try value.encode(to: encoder)
     case .tool_call_update(let value):
-      try container.encode(value)
+      try container.encode("tool_call_update", forKey: key)
+      try value.encode(to: encoder)
     case .plan(let value):
-      try container.encode(value)
+      try container.encode("plan", forKey: key)
+      try value.encode(to: encoder)
     case .available_commands_update(let value):
-      try container.encode(value)
+      try container.encode("available_commands_update", forKey: key)
+      try value.encode(to: encoder)
     case .current_mode_update(let value):
-      try container.encode(value)
+      try container.encode("current_mode_update", forKey: key)
+      try value.encode(to: encoder)
     case .config_option_update(let value):
-      try container.encode(value)
+      try container.encode("config_option_update", forKey: key)
+      try value.encode(to: encoder)
     case .session_info_update(let value):
-      try container.encode(value)
+      try container.encode("session_info_update", forKey: key)
+      try value.encode(to: encoder)
     }
   }
 }
@@ -2961,14 +3004,23 @@ public enum ToolCallContent: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+    guard let typeKey = _DiscriminatorCodingKey(stringValue: "type") else {
+      throw EncodingError.invalidValue(
+        self,
+        EncodingError.Context(
+          codingPath: encoder.codingPath, debugDescription: "Unable to encode discriminator key"))
+    }
+    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
     switch self {
     case .content(let value):
-      try container.encode(value)
+      try container.encode("content", forKey: typeKey)
+      try value.encode(to: encoder)
     case .diff(let value):
-      try container.encode(value)
+      try container.encode("diff", forKey: typeKey)
+      try value.encode(to: encoder)
     case .terminal(let value):
-      try container.encode(value)
+      try container.encode("terminal", forKey: typeKey)
+      try value.encode(to: encoder)
     }
   }
 }
