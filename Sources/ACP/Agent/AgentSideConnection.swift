@@ -8,29 +8,29 @@ public actor AgentSideConnection: Client {
     let requestHandler: Connection.RequestHandler = { method, params in
       switch method {
       case AgentMethod.authenticate.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          AuthenticateRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.authenticate(decodedParams)
+        return try await self.agent.authenticate(
+          decodeParams(params, as: AuthenticateRequest.self))
       case AgentMethod.initialize.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          InitializeRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.initialize(decodedParams)
+        return try await self.agent.initialize(decodeParams(params, as: InitializeRequest.self))
+      case AgentMethod.sessionFork.rawValue:
+        return try await self.agent.forkSession(decodeParams(params, as: ForkSessionRequest.self))
+      case AgentMethod.sessionList.rawValue:
+        return try await self.agent.listSessions(decodeParams(params, as: ListSessionsRequest.self))
       case AgentMethod.sessionLoad.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          LoadSessionRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.loadSession(decodedParams)
+        return try await self.agent.loadSession(decodeParams(params, as: LoadSessionRequest.self))
       case AgentMethod.sessionNew.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          NewSessionRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.newSession(decodedParams)
+        return try await self.agent.newSession(decodeParams(params, as: NewSessionRequest.self))
+      case AgentMethod.sessionResume.rawValue:
+        return try await self.agent.resumeSession(
+          decodeParams(params, as: ResumeSessionRequest.self))
       case AgentMethod.sessionPrompt.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          PromptRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.prompt(decodedParams)
+        return try await self.agent.prompt(decodeParams(params, as: PromptRequest.self))
       case AgentMethod.sessionSetMode.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          SetSessionModeRequest.self, from: JSONEncoder().encode(params))
-        return try await self.agent.setSessionMode(decodedParams)
+        return try await self.agent.setSessionMode(
+          decodeParams(params, as: SetSessionModeRequest.self))
+      case AgentMethod.sessionSetModel.rawValue:
+        return try await self.agent.setSessionModel(
+          decodeParams(params, as: SetSessionModelRequest.self))
       default:
         throw ACPError.methodNotFound(method)
       }
@@ -39,9 +39,7 @@ public actor AgentSideConnection: Client {
     let notificationHandler: Connection.NotificationHandler = { method, params in
       switch method {
       case AgentMethod.sessionCancel.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          CancelNotification.self, from: JSONEncoder().encode(params))
-        try await self.agent.cancel(decodedParams)
+        try await self.agent.cancel(decodeParams(params, as: CancelNotification.self))
       default:
         throw ACPError.methodNotFound(method)
       }
