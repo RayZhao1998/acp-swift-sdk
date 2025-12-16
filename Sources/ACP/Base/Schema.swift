@@ -3460,46 +3460,117 @@ public enum Role: String, Codable, Sendable {
   case user = "user"
 }
 
-public struct AnyCodable: Codable, @unchecked Sendable {
-  public let value: Any
+public struct AnyCodable: Codable, Sendable {
+  enum Value: Sendable {
+    case int(Int)
+    case double(Double)
+    case string(String)
+    case bool(Bool)
+    case dictionary([String: AnyCodable])
+    case array([AnyCodable])
+    case null
+  }
 
-  public init(_ value: Any) {
-    self.value = value
+  let value: Value
+
+  init(_ value: Any) {
+    if let intValue = value as? Int {
+      self.value = .int(intValue)
+    } else if let doubleValue = value as? Double {
+      self.value = .double(doubleValue)
+    } else if let stringValue = value as? String {
+      self.value = .string(stringValue)
+    } else if let boolValue = value as? Bool {
+      self.value = .bool(boolValue)
+    } else if let dictValue = value as? [String: AnyCodable] {
+      self.value = .dictionary(dictValue)
+    } else if let arrayValue = value as? [AnyCodable] {
+      self.value = .array(arrayValue)
+    } else if let encodableValue = value as? Encodable,
+      let encoded = AnyCodable.wrap(encodableValue)
+    {
+      self = encoded
+    } else {
+      self.value = .null
+    }
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let intValue = try? container.decode(Int.self) {
-      value = intValue
+      value = .int(intValue)
     } else if let doubleValue = try? container.decode(Double.self) {
-      value = doubleValue
+      value = .double(doubleValue)
     } else if let stringValue = try? container.decode(String.self) {
-      value = stringValue
+      value = .string(stringValue)
     } else if let boolValue = try? container.decode(Bool.self) {
-      value = boolValue
+      value = .bool(boolValue)
     } else if let dictValue = try? container.decode([String: AnyCodable].self) {
-      value = dictValue
+      value = .dictionary(dictValue)
     } else if let arrayValue = try? container.decode([AnyCodable].self) {
-      value = arrayValue
+      value = .array(arrayValue)
+    } else if container.decodeNil() {
+      value = .null
     } else {
-      value = NSNull()
+      value = .null
     }
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    if let intValue = value as? Int {
+    switch value {
+    case .int(let intValue):
       try container.encode(intValue)
-    } else if let doubleValue = value as? Double {
+    case .double(let doubleValue):
       try container.encode(doubleValue)
-    } else if let stringValue = value as? String {
+    case .string(let stringValue):
       try container.encode(stringValue)
-    } else if let boolValue = value as? Bool {
+    case .bool(let boolValue):
       try container.encode(boolValue)
-    } else if let dictValue = value as? [String: AnyCodable] {
+    case .dictionary(let dictValue):
       try container.encode(dictValue)
-    } else if let arrayValue = value as? [AnyCodable] {
+    case .array(let arrayValue):
       try container.encode(arrayValue)
+    case .null:
+      try container.encodeNil()
+    }
+  }
+
+  private static func wrap(_ encodable: Encodable) -> AnyCodable? {
+    // Encode arbitrary Encodable to JSON and rehydrate into a concrete AnyCodable tree.
+    guard let data = try? JSONEncoder().encode(AnyEncodableBox(encodable)),
+      let jsonObject = try? JSONSerialization.jsonObject(with: data)
+    else { return nil }
+
+    return fromJSONObject(jsonObject)
+  }
+
+  private static func fromJSONObject(_ object: Any) -> AnyCodable {
+    switch object {
+    case let intValue as Int:
+      return AnyCodable(intValue)
+    case let doubleValue as Double:
+      return AnyCodable(doubleValue)
+    case let stringValue as String:
+      return AnyCodable(stringValue)
+    case let boolValue as Bool:
+      return AnyCodable(boolValue)
+    case let dictValue as [String: Any]:
+      let mapped = dictValue.mapValues { fromJSONObject($0) }
+      return AnyCodable(mapped)
+    case let arrayValue as [Any]:
+      let mapped = arrayValue.map { fromJSONObject($0) }
+      return AnyCodable(mapped)
+    default:
+      return AnyCodable(() as Any)
+    }
+  }
+
+  private struct AnyEncodableBox: Encodable {
+    let wrapped: Encodable
+    init(_ wrapped: Encodable) { self.wrapped = wrapped }
+    func encode(to encoder: Encoder) throws {
+      try wrapped.encode(to: encoder)
     }
   }
 }
