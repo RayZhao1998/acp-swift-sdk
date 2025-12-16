@@ -58,10 +58,10 @@ extension Client {
   /// to free resources.
   ///
   /// See protocol docs: [Terminal Documentation](https://agentclientprotocol.com/protocol/terminals)
-  public func createTerminalSession(params: CreateTerminalRequest) async throws
+  public func createTerminal(params: CreateTerminalRequest) async throws
     -> CreateTerminalResponse
   {
-    throw ACPError.methodNotFound("createTerminalSession")
+    throw ACPError.methodNotFound("createTerminal")
   }
 
   /// Gets the current output and exit status of a terminal.
