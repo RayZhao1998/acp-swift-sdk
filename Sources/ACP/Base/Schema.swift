@@ -20,40 +20,73 @@ public struct AgentCapabilities: Codable, Sendable {
   /// Prompt capabilities supported by the agent.
   public let promptCapabilities: PromptCapabilities?
   public let sessionCapabilities: SessionCapabilities?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, loadSession: Bool? = nil,
+    mcpCapabilities: McpCapabilities? = nil, promptCapabilities: PromptCapabilities? = nil,
+    sessionCapabilities: SessionCapabilities? = nil
+  ) {
+    self._meta = _meta
+    self.loadSession = loadSession
+    self.mcpCapabilities = mcpCapabilities
+    self.promptCapabilities = promptCapabilities
+    self.sessionCapabilities = sessionCapabilities
+  }
 }
 
-public struct AgentNotification: Codable {
+public struct AgentNotification: Codable, Sendable {
   public let method: String
   public let params: AgentNotificationParams?
+
+  public init(method: String, params: AgentNotificationParams? = nil) {
+    self.method = method
+    self.params = params
+  }
 }
 
-public struct AgentRequest: Codable {
+public struct AgentRequest: Codable, Sendable {
   public let id: RequestId
   public let method: String
   public let params: AgentRequestParams?
+
+  public init(id: RequestId, method: String, params: AgentRequestParams? = nil) {
+    self.id = id
+    self.method = method
+    self.params = params
+  }
 }
 
-struct AgentResponseOption1: Codable {
-  let id: RequestId
+public struct AgentResponseOption1: Codable, Sendable {
+  public let id: RequestId
   /// All possible responses that an agent can send to a client.
   ///
   /// This enum is used internally for routing RPC responses. You typically won't need
   /// to use this directly - the responses are handled automatically by the connection.
   ///
   /// These are responses to the corresponding `ClientRequest` variants.
-  let result: ResultOption
+  public let result: ResultOption
+
+  public init(id: RequestId, result: ResultOption) {
+    self.id = id
+    self.result = result
+  }
 }
 
-struct AgentResponseOption2: Codable {
-  let error: JSONRPCError
-  let id: RequestId
+public struct AgentResponseOption2: Codable, Sendable {
+  public let error: JSONRPCError
+  public let id: RequestId
+
+  public init(error: JSONRPCError, id: RequestId) {
+    self.error = error
+    self.id = id
+  }
 }
 
-enum AgentResponse: Codable {
+public enum AgentResponse: Codable, Sendable {
   case agentResponseOption1(AgentResponseOption1)
   case agentResponseOption2(AgentResponseOption2)
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let value = try? container.decode(AgentResponseOption1.self) {
       self = .agentResponseOption1(value)
@@ -69,7 +102,7 @@ enum AgentResponse: Codable {
         codingPath: decoder.codingPath, debugDescription: "No matching type for AgentResponse"))
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .agentResponseOption1(let value):
@@ -91,6 +124,16 @@ public struct Annotations: Codable, Sendable {
   public let audience: [Role]?
   public let lastModified: String?
   public let priority: Double?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, audience: [Role]? = nil, lastModified: String? = nil,
+    priority: Double? = nil
+  ) {
+    self._meta = _meta
+    self.audience = audience
+    self.lastModified = lastModified
+    self.priority = priority
+  }
 }
 
 /// Audio provided to or from an LLM.
@@ -104,6 +147,16 @@ public struct AudioContent: Codable, Sendable {
   public let annotations: Annotations?
   public let data: String
   public let mimeType: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, annotations: Annotations? = nil, data: String,
+    mimeType: String
+  ) {
+    self._meta = _meta
+    self.annotations = annotations
+    self.data = data
+    self.mimeType = mimeType
+  }
 }
 
 /// Describes an available authentication method.
@@ -120,6 +173,15 @@ public struct AuthMethod: Codable, Sendable {
   public let id: String
   /// Human-readable name of the authentication method.
   public let name: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, description: String? = nil, id: String, name: String
+  ) {
+    self._meta = _meta
+    self.description = description
+    self.id = id
+    self.name = name
+  }
 }
 
 /// Request parameters for the authenticate method.
@@ -131,10 +193,15 @@ public struct AuthenticateRequest: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// The ID of the authentication method to use.
   /// Must be one of the methods advertised in the initialize response.
-  let methodId: String
+  public let methodId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, methodId: String) {
+    self._meta = _meta
+    self.methodId = methodId
+  }
 }
 
 /// Response to the `authenticate` method.
@@ -144,7 +211,11 @@ public struct AuthenticateResponse: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 /// Information about a command.
@@ -161,6 +232,16 @@ public struct AvailableCommand: Codable, Sendable {
   public let input: AvailableCommandInput?
   /// Command name (e.g., `create_plan`, `research_codebase`).
   public let name: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, description: String, input: AvailableCommandInput? = nil,
+    name: String
+  ) {
+    self._meta = _meta
+    self.description = description
+    self.input = input
+    self.name = name
+  }
 }
 
 /// All text that was typed after the command name is provided as input.
@@ -173,6 +254,11 @@ public struct UnstructuredCommandInput: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// A hint to display when the input hasn't been provided yet
   public let hint: String
+
+  public init(_meta: [String: AnyCodable]? = nil, hint: String) {
+    self._meta = _meta
+    self.hint = hint
+  }
 }
 
 public enum AvailableCommandInput: Codable, Sendable {
@@ -210,6 +296,11 @@ public struct AvailableCommandsUpdate: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// Commands the agent can execute
   public let availableCommands: [AvailableCommand]
+
+  public init(_meta: [String: AnyCodable]? = nil, availableCommands: [AvailableCommand]) {
+    self._meta = _meta
+    self.availableCommands = availableCommands
+  }
 }
 
 /// Binary resource contents.
@@ -223,6 +314,15 @@ public struct BlobResourceContents: Codable, Sendable {
   public let blob: String
   public let mimeType: String?
   public let uri: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, blob: String, mimeType: String? = nil, uri: String
+  ) {
+    self._meta = _meta
+    self.blob = blob
+    self.mimeType = mimeType
+    self.uri = uri
+  }
 }
 
 /// Notification to cancel ongoing operations for a session.
@@ -234,9 +334,37 @@ public struct CancelNotification: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// The ID of the session to cancel operations for.
-  let sessionId: SessionId
+  public let sessionId: SessionId
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId) {
+    self._meta = _meta
+    self.sessionId = sessionId
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Notification to cancel an ongoing request.
+///
+/// See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/cancellation)
+public struct CancelRequestNotification: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The ID of the request to cancel.
+  public let requestId: RequestId
+
+  public init(_meta: [String: AnyCodable]? = nil, requestId: RequestId) {
+    self._meta = _meta
+    self.requestId = requestId
+  }
 }
 
 /// Capabilities supported by the client.
@@ -251,17 +379,15 @@ public struct ClientCapabilities: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// File system capabilities supported by the client.
   /// Determines which file operations the agent can request.
-  let fs: FileSystemCapability?
+  public let fs: FileSystemCapability?
   /// Whether the Client support all `terminal/*` methods.
-  let terminal: Bool?
+  public let terminal: Bool?
 
   public init(
-    _meta: [String: AnyCodable]? = nil,
-    fs: FileSystemCapability? = nil,
-    terminal: Bool? = nil
+    _meta: [String: AnyCodable]? = nil, fs: FileSystemCapability? = nil, terminal: Bool? = nil
   ) {
     self._meta = _meta
     self.fs = fs
@@ -269,38 +395,59 @@ public struct ClientCapabilities: Codable, Sendable {
   }
 }
 
-struct ClientNotification: Codable {
-  let method: String
-  let params: ClientNotificationParams?
+public struct ClientNotification: Codable, Sendable {
+  public let method: String
+  public let params: ClientNotificationParams?
+
+  public init(method: String, params: ClientNotificationParams? = nil) {
+    self.method = method
+    self.params = params
+  }
 }
 
-struct ClientRequest: Codable {
-  let id: RequestId
-  let method: String
-  let params: ClientRequestParams?
+public struct ClientRequest: Codable, Sendable {
+  public let id: RequestId
+  public let method: String
+  public let params: ClientRequestParams?
+
+  public init(id: RequestId, method: String, params: ClientRequestParams? = nil) {
+    self.id = id
+    self.method = method
+    self.params = params
+  }
 }
 
-struct ClientResponseOption1: Codable {
-  let id: RequestId
+public struct ClientResponseOption1: Codable, Sendable {
+  public let id: RequestId
   /// All possible responses that a client can send to an agent.
   ///
   /// This enum is used internally for routing RPC responses. You typically won't need
   /// to use this directly - the responses are handled automatically by the connection.
   ///
   /// These are responses to the corresponding `AgentRequest` variants.
-  let result: ResultOption
+  public let result: ResultOption
+
+  public init(id: RequestId, result: ResultOption) {
+    self.id = id
+    self.result = result
+  }
 }
 
-struct ClientResponseOption2: Codable {
-  let error: JSONRPCError
-  let id: RequestId
+public struct ClientResponseOption2: Codable, Sendable {
+  public let error: JSONRPCError
+  public let id: RequestId
+
+  public init(error: JSONRPCError, id: RequestId) {
+    self.error = error
+    self.id = id
+  }
 }
 
-enum ClientResponse: Codable {
+public enum ClientResponse: Codable, Sendable {
   case clientResponseOption1(ClientResponseOption1)
   case clientResponseOption2(ClientResponseOption2)
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let value = try? container.decode(ClientResponseOption1.self) {
       self = .clientResponseOption1(value)
@@ -316,7 +463,7 @@ enum ClientResponse: Codable {
         codingPath: decoder.codingPath, debugDescription: "No matching type for ClientResponse"))
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .clientResponseOption1(let value):
@@ -324,6 +471,27 @@ enum ClientResponse: Codable {
     case .clientResponseOption2(let value):
       try container.encode(value)
     }
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Session configuration options have been updated.
+public struct ConfigOptionUpdate: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The full set of configuration options and their current values.
+  public let configOptions: [SessionConfigOption]
+
+  public init(_meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]) {
+    self._meta = _meta
+    self.configOptions = configOptions
   }
 }
 
@@ -337,6 +505,11 @@ public struct Content: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// The actual content block.
   public let content: ContentBlock
+
+  public init(_meta: [String: AnyCodable]? = nil, content: ContentBlock) {
+    self._meta = _meta
+    self.content = content
+  }
 }
 
 /// Text provided to or from an LLM.
@@ -350,14 +523,10 @@ public struct TextContent: Codable, Sendable {
   public let annotations: Annotations?
   public let text: String
 
-  public init(
-    text: String,
-    annotations: Annotations? = nil,
-    _meta: [String: AnyCodable]? = nil
-  ) {
-    self.text = text
-    self.annotations = annotations
+  public init(_meta: [String: AnyCodable]? = nil, annotations: Annotations? = nil, text: String) {
     self._meta = _meta
+    self.annotations = annotations
+    self.text = text
   }
 }
 
@@ -373,6 +542,17 @@ public struct ImageContent: Codable, Sendable {
   public let data: String
   public let mimeType: String
   public let uri: String?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, annotations: Annotations? = nil, data: String,
+    mimeType: String, uri: String? = nil
+  ) {
+    self._meta = _meta
+    self.annotations = annotations
+    self.data = data
+    self.mimeType = mimeType
+    self.uri = uri
+  }
 }
 
 /// A resource that the server is capable of reading, included in a prompt or tool call result.
@@ -382,14 +562,28 @@ public struct ResourceLink: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
-  let annotations: Annotations?
-  let description: String?
-  let mimeType: String?
-  let name: String
-  let size: Int?
-  let title: String?
-  let uri: String
+  public let _meta: [String: AnyCodable]?
+  public let annotations: Annotations?
+  public let description: String?
+  public let mimeType: String?
+  public let name: String
+  public let size: Int?
+  public let title: String?
+  public let uri: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, annotations: Annotations? = nil, description: String? = nil,
+    mimeType: String? = nil, name: String, size: Int? = nil, title: String? = nil, uri: String
+  ) {
+    self._meta = _meta
+    self.annotations = annotations
+    self.description = description
+    self.mimeType = mimeType
+    self.name = name
+    self.size = size
+    self.title = title
+    self.uri = uri
+  }
 }
 
 /// The contents of a resource, embedded into a prompt or tool call result.
@@ -402,6 +596,15 @@ public struct EmbeddedResource: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   public let annotations: Annotations?
   public let resource: EmbeddedResourceResource
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, annotations: Annotations? = nil,
+    resource: EmbeddedResourceResource
+  ) {
+    self._meta = _meta
+    self.annotations = annotations
+    self.resource = resource
+  }
 }
 
 public enum ContentBlock: Codable, Sendable {
@@ -474,29 +677,18 @@ public enum ContentBlock: Codable, Sendable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    guard let typeKey = _DiscriminatorCodingKey(stringValue: "type") else {
-      throw EncodingError.invalidValue(
-        self,
-        EncodingError.Context(
-          codingPath: encoder.codingPath, debugDescription: "Unable to encode discriminator key"))
-    }
-    var container = encoder.container(keyedBy: _DiscriminatorCodingKey.self)
+    var container = encoder.singleValueContainer()
     switch self {
     case .text(let value):
-      try container.encode("text", forKey: typeKey)
-      try value.encode(to: encoder)
+      try container.encode(value)
     case .image(let value):
-      try container.encode("image", forKey: typeKey)
-      try value.encode(to: encoder)
+      try container.encode(value)
     case .audio(let value):
-      try container.encode("audio", forKey: typeKey)
-      try value.encode(to: encoder)
+      try container.encode(value)
     case .resource_link(let value):
-      try container.encode("resource_link", forKey: typeKey)
-      try value.encode(to: encoder)
+      try container.encode(value)
     case .resource(let value):
-      try container.encode("resource", forKey: typeKey)
-      try value.encode(to: encoder)
+      try container.encode(value)
     }
   }
 }
@@ -511,6 +703,11 @@ public struct ContentChunk: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// A single item of content
   public let content: ContentBlock
+
+  public init(_meta: [String: AnyCodable]? = nil, content: ContentBlock) {
+    self._meta = _meta
+    self.content = content
+  }
 }
 
 /// Request to create a new terminal and execute a command.
@@ -540,6 +737,19 @@ public struct CreateTerminalRequest: Codable, Sendable {
   public let outputByteLimit: Int?
   /// The session ID for this request.
   public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, args: [String]? = nil, command: String, cwd: String? = nil,
+    env: [EnvVariable]? = nil, outputByteLimit: Int? = nil, sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.args = args
+    self.command = command
+    self.cwd = cwd
+    self.env = env
+    self.outputByteLimit = outputByteLimit
+    self.sessionId = sessionId
+  }
 }
 
 /// Response containing the ID of the created terminal.
@@ -549,9 +759,14 @@ public struct CreateTerminalResponse: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// The unique identifier for the created terminal.
-  let terminalId: String
+  public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, terminalId: String) {
+    self._meta = _meta
+    self.terminalId = terminalId
+  }
 }
 
 /// The current mode of the session has changed
@@ -566,6 +781,11 @@ public struct CurrentModeUpdate: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// The ID of the current mode
   public let currentModeId: SessionModeId
+
+  public init(_meta: [String: AnyCodable]? = nil, currentModeId: SessionModeId) {
+    self._meta = _meta
+    self.currentModeId = currentModeId
+  }
 }
 
 /// A diff representing file modifications.
@@ -586,6 +806,15 @@ public struct Diff: Codable, Sendable {
   public let oldText: String?
   /// The file path being modified.
   public let path: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, newText: String, oldText: String? = nil, path: String
+  ) {
+    self._meta = _meta
+    self.newText = newText
+    self.oldText = oldText
+    self.path = path
+  }
 }
 
 /// Text-based resource contents.
@@ -599,6 +828,15 @@ public struct TextResourceContents: Codable, Sendable {
   public let mimeType: String?
   public let text: String
   public let uri: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, mimeType: String? = nil, text: String, uri: String
+  ) {
+    self._meta = _meta
+    self.mimeType = mimeType
+    self.text = text
+    self.uri = uri
+  }
 }
 
 public enum EmbeddedResourceResource: Codable, Sendable {
@@ -645,6 +883,12 @@ public struct EnvVariable: Codable, Sendable {
   public let name: String
   /// The value to set for the environment variable.
   public let value: String
+
+  public init(_meta: [String: AnyCodable]? = nil, name: String, value: String) {
+    self._meta = _meta
+    self.name = name
+    self.value = value
+  }
 }
 
 /// JSON-RPC error object.
@@ -663,6 +907,12 @@ public struct JSONRPCError: Codable, Sendable {
   /// A string providing a short description of the error.
   /// The message should be limited to a concise single sentence.
   public let message: String
+
+  public init(code: ErrorCode, data: AnyCodable? = nil, message: String) {
+    self.code = code
+    self.data = data
+    self.message = message
+  }
 }
 
 public typealias ErrorCode = AnyCodable
@@ -701,20 +951,96 @@ public struct FileSystemCapability: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// Whether the Client supports `fs/read_text_file` requests.
-  let readTextFile: Bool?
+  public let readTextFile: Bool?
   /// Whether the Client supports `fs/write_text_file` requests.
-  let writeTextFile: Bool?
+  public let writeTextFile: Bool?
 
   public init(
-    _meta: [String: AnyCodable]? = nil,
-    readTextFile: Bool? = nil,
-    writeTextFile: Bool? = nil
+    _meta: [String: AnyCodable]? = nil, readTextFile: Bool? = nil, writeTextFile: Bool? = nil
   ) {
     self._meta = _meta
     self.readTextFile = readTextFile
     self.writeTextFile = writeTextFile
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Request parameters for forking an existing session.
+///
+/// Creates a new session based on the context of an existing one, allowing
+/// operations like generating summaries without affecting the original session's history.
+///
+/// Only available if the Agent supports the `session.fork` capability.
+public struct ForkSessionRequest: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The working directory for this session.
+  public let cwd: String
+  /// List of MCP servers to connect to for this session.
+  public let mcpServers: [McpServer]?
+  /// The ID of the session to fork.
+  public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, cwd: String, mcpServers: [McpServer]? = nil,
+    sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.cwd = cwd
+    self.mcpServers = mcpServers
+    self.sessionId = sessionId
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Response from forking an existing session.
+public struct ForkSessionResponse: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial session configuration options if supported by the Agent.
+  public let configOptions: [SessionConfigOption]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial model state if supported by the Agent
+  public let models: SessionModelState?
+  /// Initial mode state if supported by the Agent
+  ///
+  /// See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+  public let modes: SessionModeState?
+  /// Unique identifier for the newly created forked session.
+  public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]? = nil,
+    models: SessionModelState? = nil, modes: SessionModeState? = nil, sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.configOptions = configOptions
+    self.models = models
+    self.modes = modes
+    self.sessionId = sessionId
   }
 }
 
@@ -730,6 +1056,12 @@ public struct HttpHeader: Codable, Sendable {
   public let name: String
   /// The value to set for the HTTP header.
   public let value: String
+
+  public init(_meta: [String: AnyCodable]? = nil, name: String, value: String) {
+    self._meta = _meta
+    self.name = name
+    self.value = value
+  }
 }
 
 /// Metadata about the implementation of the client or agent.
@@ -755,12 +1087,12 @@ public struct Implementation: Codable, Sendable {
   public let version: String
 
   public init(
-    name: String, version: String, title: String? = nil, _meta: [String: AnyCodable]? = nil
+    _meta: [String: AnyCodable]? = nil, name: String, title: String? = nil, version: String
   ) {
-    self.name = name
-    self.version = version
-    self.title = title
     self._meta = _meta
+    self.name = name
+    self.title = title
+    self.version = version
   }
 }
 
@@ -775,24 +1107,24 @@ public struct InitializeRequest: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// Capabilities supported by the client.
-  let clientCapabilities: ClientCapabilities?
+  public let clientCapabilities: ClientCapabilities?
   /// Information about the Client name and version sent to the Agent.
   ///
   /// Note: in future versions of the protocol, this will be required.
-  let clientInfo: Implementation?
+  public let clientInfo: Implementation?
   /// The latest protocol version supported by the client.
-  let protocolVersion: ProtocolVersion
+  public let protocolVersion: ProtocolVersion
 
   public init(
-    protocolVersion: ProtocolVersion, clientCapabilities: ClientCapabilities? = nil,
-    clientInfo: Implementation? = nil, _meta: [String: AnyCodable]? = nil
+    _meta: [String: AnyCodable]? = nil, clientCapabilities: ClientCapabilities? = nil,
+    clientInfo: Implementation? = nil, protocolVersion: ProtocolVersion
   ) {
-    self.protocolVersion = protocolVersion
+    self._meta = _meta
     self.clientCapabilities = clientCapabilities
     self.clientInfo = clientInfo
-    self._meta = _meta
+    self.protocolVersion = protocolVersion
   }
 }
 
@@ -821,6 +1153,18 @@ public struct InitializeResponse: Codable, Sendable {
   ///
   /// The client should disconnect, if it doesn't support this version.
   public let protocolVersion: ProtocolVersion
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, agentCapabilities: AgentCapabilities? = nil,
+    agentInfo: Implementation? = nil, authMethods: [AuthMethod]? = nil,
+    protocolVersion: ProtocolVersion
+  ) {
+    self._meta = _meta
+    self.agentCapabilities = agentCapabilities
+    self.agentInfo = agentInfo
+    self.authMethods = authMethods
+    self.protocolVersion = protocolVersion
+  }
 }
 
 /// Request to kill a terminal command without releasing the terminal.
@@ -835,6 +1179,12 @@ public struct KillTerminalCommandRequest: Codable, Sendable {
   public let sessionId: SessionId
   /// The ID of the terminal to kill.
   public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId, terminalId: String) {
+    self._meta = _meta
+    self.sessionId = sessionId
+    self.terminalId = terminalId
+  }
 }
 
 /// Response to terminal/kill command method
@@ -845,6 +1195,63 @@ public struct KillTerminalCommandResponse: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Request parameters for listing existing sessions.
+///
+/// Only available if the Agent supports the `listSessions` capability.
+public struct ListSessionsRequest: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Opaque cursor token from a previous response's nextCursor field for cursor-based pagination
+  public let cursor: String?
+  /// Filter sessions by working directory. Must be an absolute path.
+  public let cwd: String?
+
+  public init(_meta: [String: AnyCodable]? = nil, cursor: String? = nil, cwd: String? = nil) {
+    self._meta = _meta
+    self.cursor = cursor
+    self.cwd = cwd
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Response from listing sessions.
+public struct ListSessionsResponse: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Opaque cursor token. If present, pass this in the next request's cursor parameter
+  /// to fetch the next page. If absent, there are no more results.
+  public let nextCursor: String?
+  /// Array of session information objects
+  public let sessions: [SessionInfo]
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, nextCursor: String? = nil, sessions: [SessionInfo]
+  ) {
+    self._meta = _meta
+    self.nextCursor = nextCursor
+    self.sessions = sessions
+  }
 }
 
 /// Request parameters for loading an existing session.
@@ -867,15 +1274,12 @@ public struct LoadSessionRequest: Codable, Sendable {
   public let sessionId: SessionId
 
   public init(
-    sessionId: SessionId,
-    cwd: String,
-    mcpServers: [McpServer],
-    _meta: [String: AnyCodable]? = nil
+    _meta: [String: AnyCodable]? = nil, cwd: String, mcpServers: [McpServer], sessionId: SessionId
   ) {
-    self.sessionId = sessionId
+    self._meta = _meta
     self.cwd = cwd
     self.mcpServers = mcpServers
-    self._meta = _meta
+    self.sessionId = sessionId
   }
 }
 
@@ -887,10 +1291,32 @@ public struct LoadSessionResponse: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial session configuration options if supported by the Agent.
+  public let configOptions: [SessionConfigOption]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial model state if supported by the Agent
+  public let models: SessionModelState?
   /// Initial mode state if supported by the Agent
   ///
   /// See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
   public let modes: SessionModeState?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]? = nil,
+    models: SessionModelState? = nil, modes: SessionModeState? = nil
+  ) {
+    self._meta = _meta
+    self.configOptions = configOptions
+    self.models = models
+    self.modes = modes
+  }
 }
 
 /// MCP capabilities supported by the agent
@@ -905,6 +1331,12 @@ public struct McpCapabilities: Codable, Sendable {
   public let http: Bool?
   /// Agent supports [`McpServer::Sse`].
   public let sse: Bool?
+
+  public init(_meta: [String: AnyCodable]? = nil, http: Bool? = nil, sse: Bool? = nil) {
+    self._meta = _meta
+    self.http = http
+    self.sse = sse
+  }
 }
 
 /// HTTP transport configuration for MCP.
@@ -921,6 +1353,14 @@ public struct McpServerHttp: Codable, Sendable {
   public let name: String
   /// URL to the MCP server.
   public let url: String
+
+  public init(_meta: [String: AnyCodable]? = nil, headers: [HttpHeader], name: String, url: String)
+  {
+    self._meta = _meta
+    self.headers = headers
+    self.name = name
+    self.url = url
+  }
 }
 
 /// SSE transport configuration for MCP.
@@ -937,6 +1377,14 @@ public struct McpServerSse: Codable, Sendable {
   public let name: String
   /// URL to the MCP server.
   public let url: String
+
+  public init(_meta: [String: AnyCodable]? = nil, headers: [HttpHeader], name: String, url: String)
+  {
+    self._meta = _meta
+    self.headers = headers
+    self.name = name
+    self.url = url
+  }
 }
 
 /// Stdio transport configuration for MCP.
@@ -955,6 +1403,17 @@ public struct McpServerStdio: Codable, Sendable {
   public let env: [EnvVariable]
   /// Human-readable name identifying this MCP server.
   public let name: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, args: [String], command: String, env: [EnvVariable],
+    name: String
+  ) {
+    self._meta = _meta
+    self.args = args
+    self.command = command
+    self.env = env
+    self.name = name
+  }
 }
 
 public enum McpServer: Codable, Sendable {
@@ -995,6 +1454,37 @@ public enum McpServer: Codable, Sendable {
   }
 }
 
+public typealias ModelId = String
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Information about a selectable model.
+public struct ModelInfo: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Optional description of the model.
+  public let description: String?
+  /// Unique identifier for the model.
+  public let modelId: ModelId
+  /// Human-readable name of the model.
+  public let name: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, description: String? = nil, modelId: ModelId, name: String
+  ) {
+    self._meta = _meta
+    self.description = description
+    self.modelId = modelId
+    self.name = name
+  }
+}
+
 /// Request parameters for creating a new session.
 ///
 /// See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/session-setup#creating-a-session)
@@ -1010,10 +1500,10 @@ public struct NewSessionRequest: Codable, Sendable {
   /// List of MCP (Model Context Protocol) servers the agent should connect to.
   public let mcpServers: [McpServer]
 
-  public init(cwd: String, mcpServers: [McpServer], _meta: [String: AnyCodable]? = nil) {
+  public init(_meta: [String: AnyCodable]? = nil, cwd: String, mcpServers: [McpServer]) {
+    self._meta = _meta
     self.cwd = cwd
     self.mcpServers = mcpServers
-    self._meta = _meta
   }
 }
 
@@ -1027,6 +1517,18 @@ public struct NewSessionResponse: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial session configuration options if supported by the Agent.
+  public let configOptions: [SessionConfigOption]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial model state if supported by the Agent
+  public let models: SessionModelState?
   /// Initial mode state if supported by the Agent
   ///
   /// See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
@@ -1035,6 +1537,17 @@ public struct NewSessionResponse: Codable, Sendable {
   ///
   /// Used in all subsequent requests for this conversation.
   public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]? = nil,
+    models: SessionModelState? = nil, modes: SessionModeState? = nil, sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.configOptions = configOptions
+    self.models = models
+    self.modes = modes
+    self.sessionId = sessionId
+  }
 }
 
 /// An option presented to the user when requesting permission.
@@ -1051,6 +1564,16 @@ public struct PermissionOption: Codable, Sendable {
   public let name: String
   /// Unique identifier for this permission option.
   public let optionId: PermissionOptionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, kind: PermissionOptionKind, name: String,
+    optionId: PermissionOptionId
+  ) {
+    self._meta = _meta
+    self.kind = kind
+    self.name = name
+    self.optionId = optionId
+  }
 }
 
 public typealias PermissionOptionId = String
@@ -1081,6 +1604,11 @@ public struct Plan: Codable, Sendable {
   /// When updating a plan, the agent must send a complete list of all entries
   /// with their current status. The client replaces the entire plan with each update.
   public let entries: [PlanEntry]
+
+  public init(_meta: [String: AnyCodable]? = nil, entries: [PlanEntry]) {
+    self._meta = _meta
+    self.entries = entries
+  }
 }
 
 /// A single entry in the execution plan.
@@ -1094,14 +1622,24 @@ public struct PlanEntry: Codable, Sendable {
   /// these keys.
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
-  let _meta: [String: AnyCodable]?
+  public let _meta: [String: AnyCodable]?
   /// Human-readable description of what this task aims to accomplish.
-  let content: String
+  public let content: String
   /// The relative importance of this task.
   /// Used to indicate which tasks are most critical to the overall goal.
-  let priority: PlanEntryPriority
+  public let priority: PlanEntryPriority
   /// Current execution status of this task.
-  let status: PlanEntryStatus
+  public let status: PlanEntryStatus
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, content: String, priority: PlanEntryPriority,
+    status: PlanEntryStatus
+  ) {
+    self._meta = _meta
+    self.content = content
+    self.priority = priority
+    self.status = status
+  }
 }
 
 public enum PlanEntryPriority: String, Codable, Sendable {
@@ -1144,6 +1682,16 @@ public struct PromptCapabilities: Codable, Sendable {
   public let embeddedContext: Bool?
   /// Agent supports [`ContentBlock::Image`].
   public let image: Bool?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, audio: Bool? = nil, embeddedContext: Bool? = nil,
+    image: Bool? = nil
+  ) {
+    self._meta = _meta
+    self.audio = audio
+    self.embeddedContext = embeddedContext
+    self.image = image
+  }
 }
 
 /// Request parameters for sending a user prompt to the agent.
@@ -1175,14 +1723,10 @@ public struct PromptRequest: Codable, Sendable {
   /// The ID of the session to send this user message to
   public let sessionId: SessionId
 
-  public init(
-    sessionId: SessionId,
-    prompt: [ContentBlock],
-    _meta: [String: AnyCodable]? = nil
-  ) {
-    self.sessionId = sessionId
-    self.prompt = prompt
+  public init(_meta: [String: AnyCodable]? = nil, prompt: [ContentBlock], sessionId: SessionId) {
     self._meta = _meta
+    self.prompt = prompt
+    self.sessionId = sessionId
   }
 }
 
@@ -1198,6 +1742,11 @@ public struct PromptResponse: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
   /// Indicates why the agent stopped processing the turn.
   public let stopReason: StopReason
+
+  public init(_meta: [String: AnyCodable]? = nil, stopReason: StopReason) {
+    self._meta = _meta
+    self.stopReason = stopReason
+  }
 }
 
 public typealias ProtocolVersion = Int
@@ -1220,6 +1769,17 @@ public struct ReadTextFileRequest: Codable, Sendable {
   public let path: String
   /// The session ID for this request.
   public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, limit: Int? = nil, line: Int? = nil, path: String,
+    sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.limit = limit
+    self.line = line
+    self.path = path
+    self.sessionId = sessionId
+  }
 }
 
 /// Response containing the contents of a text file.
@@ -1231,6 +1791,11 @@ public struct ReadTextFileResponse: Codable, Sendable {
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
   public let content: String
+
+  public init(_meta: [String: AnyCodable]? = nil, content: String) {
+    self._meta = _meta
+    self.content = content
+  }
 }
 
 /// Request to release a terminal and free its resources.
@@ -1245,6 +1810,12 @@ public struct ReleaseTerminalRequest: Codable, Sendable {
   public let sessionId: SessionId
   /// The ID of the terminal to release.
   public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId, terminalId: String) {
+    self._meta = _meta
+    self.sessionId = sessionId
+    self.terminalId = terminalId
+  }
 }
 
 /// Response to terminal/release method
@@ -1255,6 +1826,10 @@ public struct ReleaseTerminalResponse: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 public typealias RequestId = AnyCodable
@@ -1268,6 +1843,10 @@ public typealias RequestId = AnyCodable
 /// See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/prompt-turn#cancellation)
 public struct RequestPermissionOutcomeOption1: Codable, Sendable {
   public let outcome: String
+
+  public init(outcome: String) {
+    self.outcome = outcome
+  }
 }
 
 /// The user selected one of the provided options.
@@ -1281,9 +1860,9 @@ public struct SelectedPermissionOutcome: Codable, Sendable {
   /// The ID of the option the user selected.
   public let optionId: PermissionOptionId
 
-  public init(optionId: PermissionOptionId, _meta: [String: AnyCodable]? = nil) {
-    self.optionId = optionId
+  public init(_meta: [String: AnyCodable]? = nil, optionId: PermissionOptionId) {
     self._meta = _meta
+    self.optionId = optionId
   }
 }
 
@@ -1356,6 +1935,16 @@ public struct RequestPermissionRequest: Codable, Sendable {
   public let sessionId: SessionId
   /// Details about the tool call requiring permission.
   public let toolCall: ToolCallUpdate
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, options: [PermissionOption], sessionId: SessionId,
+    toolCall: ToolCallUpdate
+  ) {
+    self._meta = _meta
+    self.options = options
+    self.sessionId = sessionId
+    self.toolCall = toolCall
+  }
 }
 
 /// Response to a permission request.
@@ -1369,9 +1958,84 @@ public struct RequestPermissionResponse: Codable, Sendable {
   /// The user's decision on the permission request.
   public let outcome: RequestPermissionOutcome
 
-  public init(outcome: RequestPermissionOutcome, _meta: [String: AnyCodable]? = nil) {
-    self.outcome = outcome
+  public init(_meta: [String: AnyCodable]? = nil, outcome: RequestPermissionOutcome) {
     self._meta = _meta
+    self.outcome = outcome
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Request parameters for resuming an existing session.
+///
+/// Resumes an existing session without returning previous messages (unlike `session/load`).
+/// This is useful for agents that can resume sessions but don't implement full session loading.
+///
+/// Only available if the Agent supports the `session.resume` capability.
+public struct ResumeSessionRequest: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The working directory for this session.
+  public let cwd: String
+  /// List of MCP servers to connect to for this session.
+  public let mcpServers: [McpServer]?
+  /// The ID of the session to resume.
+  public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, cwd: String, mcpServers: [McpServer]? = nil,
+    sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.cwd = cwd
+    self.mcpServers = mcpServers
+    self.sessionId = sessionId
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Response from resuming an existing session.
+public struct ResumeSessionResponse: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial session configuration options if supported by the Agent.
+  public let configOptions: [SessionConfigOption]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Initial model state if supported by the Agent
+  public let models: SessionModelState?
+  /// Initial mode state if supported by the Agent
+  ///
+  /// See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+  public let modes: SessionModeState?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]? = nil,
+    models: SessionModelState? = nil, modes: SessionModeState? = nil
+  ) {
+    self._meta = _meta
+    self.configOptions = configOptions
+    self.models = models
+    self.modes = modes
   }
 }
 
@@ -1391,9 +2055,285 @@ public struct SessionCapabilities: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Whether the agent supports `session/fork`.
+  public let fork: SessionForkCapabilities?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Whether the agent supports `session/list`.
+  public let list: SessionListCapabilities?
+  /// **UNSTABLE**
+  ///
+  /// This capability is not part of the spec yet, and may be removed or changed at any point.
+  ///
+  /// Whether the agent supports `session/resume`.
+  public let resume: SessionResumeCapabilities?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, fork: SessionForkCapabilities? = nil,
+    list: SessionListCapabilities? = nil, resume: SessionResumeCapabilities? = nil
+  ) {
+    self._meta = _meta
+    self.fork = fork
+    self.list = list
+    self.resume = resume
+  }
+}
+
+public typealias SessionConfigGroupId = String
+
+public typealias SessionConfigId = String
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// A single-value selector (dropdown) session configuration option payload.
+public struct SessionConfigSelect: Codable, Sendable {
+  /// The currently selected value.
+  public let currentValue: SessionConfigValueId
+  /// The set of selectable options.
+  public let options: SessionConfigSelectOptions
+
+  public init(currentValue: SessionConfigValueId, options: SessionConfigSelectOptions) {
+    self.currentValue = currentValue
+    self.options = options
+  }
+}
+
+public enum SessionConfigOption: Codable, Sendable {
+  case select(SessionConfigSelect)
+
+  public init(from decoder: Decoder) throws {
+    if let key = _DiscriminatorCodingKey(stringValue: "type"),
+      let container = try? decoder.container(keyedBy: _DiscriminatorCodingKey.self),
+      let raw = try? container.decode(String.self, forKey: key)
+    {
+      switch raw {
+      case "select":
+        if let value = try? SessionConfigSelect(from: decoder) {
+          self = .select(value)
+          return
+        }
+      default:
+        break
+      }
+    }
+    let container = try decoder.singleValueContainer()
+    if let value = try? container.decode(SessionConfigSelect.self) {
+      self = .select(value)
+      return
+    }
+    throw DecodingError.typeMismatch(
+      SessionConfigOption.self,
+      DecodingError.Context(
+        codingPath: decoder.codingPath, debugDescription: "No matching type for SessionConfigOption"
+      ))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    switch self {
+    case .select(let value):
+      try container.encode(value)
+    }
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// A group of possible values for a session configuration option.
+public struct SessionConfigSelectGroup: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Unique identifier for this group.
+  public let group: SessionConfigGroupId
+  /// Human-readable label for this group.
+  public let name: String
+  /// The set of option values in this group.
+  public let options: [SessionConfigSelectOption]
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, group: SessionConfigGroupId, name: String,
+    options: [SessionConfigSelectOption]
+  ) {
+    self._meta = _meta
+    self.group = group
+    self.name = name
+    self.options = options
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// A possible value for a session configuration option.
+public struct SessionConfigSelectOption: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Optional description for this option value.
+  public let description: String?
+  /// Human-readable label for this option value.
+  public let name: String
+  /// Unique identifier for this option value.
+  public let value: SessionConfigValueId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, description: String? = nil, name: String,
+    value: SessionConfigValueId
+  ) {
+    self._meta = _meta
+    self.description = description
+    self.name = name
+    self.value = value
+  }
+}
+
+public enum SessionConfigSelectOptions: Codable, Sendable {
+  case sessionConfigSelectOption([SessionConfigSelectOption])
+  case sessionConfigSelectGroup([SessionConfigSelectGroup])
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    if let value = try? container.decode([SessionConfigSelectOption].self) {
+      self = .sessionConfigSelectOption(value)
+      return
+    }
+    if let value = try? container.decode([SessionConfigSelectGroup].self) {
+      self = .sessionConfigSelectGroup(value)
+      return
+    }
+    throw DecodingError.typeMismatch(
+      SessionConfigSelectOptions.self,
+      DecodingError.Context(
+        codingPath: decoder.codingPath,
+        debugDescription: "No matching type for SessionConfigSelectOptions"))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    switch self {
+    case .sessionConfigSelectOption(let value):
+      try container.encode(value)
+    case .sessionConfigSelectGroup(let value):
+      try container.encode(value)
+    }
+  }
+}
+
+public typealias SessionConfigValueId = String
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Capabilities for the `session/fork` method.
+///
+/// By supplying `{}` it means that the agent supports forking of sessions.
+public struct SessionForkCapabilities: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 public typealias SessionId = String
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Information about a session returned by session/list
+public struct SessionInfo: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The working directory for this session. Must be an absolute path.
+  public let cwd: String
+  /// Unique identifier for the session
+  public let sessionId: SessionId
+  /// Human-readable title for the session
+  public let title: String?
+  /// ISO 8601 timestamp of last activity
+  public let updatedAt: String?
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, cwd: String, sessionId: SessionId, title: String? = nil,
+    updatedAt: String? = nil
+  ) {
+    self._meta = _meta
+    self.cwd = cwd
+    self.sessionId = sessionId
+    self.title = title
+    self.updatedAt = updatedAt
+  }
+}
+
+/// Update to session metadata. All fields are optional to support partial updates.
+///
+/// Agents send this notification to update session information like title or custom metadata.
+/// This allows clients to display dynamic session names and track session state changes.
+public struct SessionInfoUpdate: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// Human-readable title for the session. Set to null to clear.
+  public let title: String?
+  /// ISO 8601 timestamp of last activity. Set to null to clear.
+  public let updatedAt: String?
+
+  public init(_meta: [String: AnyCodable]? = nil, title: String? = nil, updatedAt: String? = nil) {
+    self._meta = _meta
+    self.title = title
+    self.updatedAt = updatedAt
+  }
+}
+
+/// Capabilities for the `session/list` method.
+///
+/// By supplying `{}` it means that the agent supports listing of sessions.
+///
+/// Further capabilities can be added in the future for other means of filtering or searching the list.
+public struct SessionListCapabilities: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
+}
 
 /// A mode the agent can operate in.
 ///
@@ -1408,6 +2348,15 @@ public struct SessionMode: Codable, Sendable {
   public let description: String?
   public let id: SessionModeId
   public let name: String
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, description: String? = nil, id: SessionModeId, name: String
+  ) {
+    self._meta = _meta
+    self.description = description
+    self.id = id
+    self.name = name
+  }
 }
 
 public typealias SessionModeId = String
@@ -1424,6 +2373,40 @@ public struct SessionModeState: Codable, Sendable {
   public let availableModes: [SessionMode]
   /// The current mode the Agent is in.
   public let currentModeId: SessionModeId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, availableModes: [SessionMode], currentModeId: SessionModeId
+  ) {
+    self._meta = _meta
+    self.availableModes = availableModes
+    self.currentModeId = currentModeId
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// The set of models and the one currently active.
+public struct SessionModelState: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The set of models that the Agent can use
+  public let availableModels: [ModelInfo]
+  /// The current model the Agent is in.
+  public let currentModelId: ModelId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, availableModels: [ModelInfo], currentModelId: ModelId
+  ) {
+    self._meta = _meta
+    self.availableModels = availableModels
+    self.currentModelId = currentModelId
+  }
 }
 
 /// Notification containing a session update from the agent.
@@ -1442,6 +2425,32 @@ public struct SessionNotification: Codable, Sendable {
   public let sessionId: SessionId
   /// The actual update content.
   public let update: SessionUpdate
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId, update: SessionUpdate) {
+    self._meta = _meta
+    self.sessionId = sessionId
+    self.update = update
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Capabilities for the `session/resume` method.
+///
+/// By supplying `{}` it means that the agent supports resuming of sessions.
+public struct SessionResumeCapabilities: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 /// Represents a tool call that the language model has requested.
@@ -1475,6 +2484,22 @@ public struct ToolCall: Codable, Sendable {
   public let title: String
   /// Unique identifier for this tool call within the session.
   public let toolCallId: ToolCallId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, content: [ToolCallContent]? = nil, kind: ToolKind? = nil,
+    locations: [ToolCallLocation]? = nil, rawInput: AnyCodable? = nil, rawOutput: AnyCodable? = nil,
+    status: ToolCallStatus? = nil, title: String, toolCallId: ToolCallId
+  ) {
+    self._meta = _meta
+    self.content = content
+    self.kind = kind
+    self.locations = locations
+    self.rawInput = rawInput
+    self.rawOutput = rawOutput
+    self.status = status
+    self.title = title
+    self.toolCallId = toolCallId
+  }
 }
 
 /// An update to an existing tool call.
@@ -1506,6 +2531,22 @@ public struct ToolCallUpdate: Codable, Sendable {
   public let title: String?
   /// The ID of the tool call being updated.
   public let toolCallId: ToolCallId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, content: [ToolCallContent]? = nil, kind: ToolKind? = nil,
+    locations: [ToolCallLocation]? = nil, rawInput: AnyCodable? = nil, rawOutput: AnyCodable? = nil,
+    status: ToolCallStatus? = nil, title: String? = nil, toolCallId: ToolCallId
+  ) {
+    self._meta = _meta
+    self.content = content
+    self.kind = kind
+    self.locations = locations
+    self.rawInput = rawInput
+    self.rawOutput = rawOutput
+    self.status = status
+    self.title = title
+    self.toolCallId = toolCallId
+  }
 }
 
 public enum SessionUpdate: Codable, Sendable {
@@ -1517,6 +2558,8 @@ public enum SessionUpdate: Codable, Sendable {
   case plan(Plan)
   case available_commands_update(AvailableCommandsUpdate)
   case current_mode_update(CurrentModeUpdate)
+  case config_option_update(ConfigOptionUpdate)
+  case session_info_update(SessionInfoUpdate)
 
   public init(from decoder: Decoder) throws {
     if let key = _DiscriminatorCodingKey(stringValue: "sessionUpdate"),
@@ -1564,6 +2607,16 @@ public enum SessionUpdate: Codable, Sendable {
           self = .current_mode_update(value)
           return
         }
+      case "config_option_update":
+        if let value = try? ConfigOptionUpdate(from: decoder) {
+          self = .config_option_update(value)
+          return
+        }
+      case "session_info_update":
+        if let value = try? SessionInfoUpdate(from: decoder) {
+          self = .session_info_update(value)
+          return
+        }
       default:
         break
       }
@@ -1601,6 +2654,14 @@ public enum SessionUpdate: Codable, Sendable {
       self = .current_mode_update(value)
       return
     }
+    if let value = try? container.decode(ConfigOptionUpdate.self) {
+      self = .config_option_update(value)
+      return
+    }
+    if let value = try? container.decode(SessionInfoUpdate.self) {
+      self = .session_info_update(value)
+      return
+    }
     throw DecodingError.typeMismatch(
       SessionUpdate.self,
       DecodingError.Context(
@@ -1626,7 +2687,62 @@ public enum SessionUpdate: Codable, Sendable {
       try container.encode(value)
     case .current_mode_update(let value):
       try container.encode(value)
+    case .config_option_update(let value):
+      try container.encode(value)
+    case .session_info_update(let value):
+      try container.encode(value)
     }
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Request parameters for setting a session configuration option.
+public struct SetSessionConfigOptionRequest: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The ID of the configuration option to set.
+  public let configId: SessionConfigId
+  /// The ID of the session to set the configuration option for.
+  public let sessionId: SessionId
+  /// The ID of the configuration option value to set.
+  public let value: SessionConfigValueId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, configId: SessionConfigId, sessionId: SessionId,
+    value: SessionConfigValueId
+  ) {
+    self._meta = _meta
+    self.configId = configId
+    self.sessionId = sessionId
+    self.value = value
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Response to `session/set_config_option` method.
+public struct SetSessionConfigOptionResponse: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The full set of configuration options and their current values.
+  public let configOptions: [SessionConfigOption]
+
+  public init(_meta: [String: AnyCodable]? = nil, configOptions: [SessionConfigOption]) {
+    self._meta = _meta
+    self.configOptions = configOptions
   }
 }
 
@@ -1642,11 +2758,63 @@ public struct SetSessionModeRequest: Codable, Sendable {
   public let modeId: SessionModeId
   /// The ID of the session to set the mode for.
   public let sessionId: SessionId
+
+  public init(_meta: [String: AnyCodable]? = nil, modeId: SessionModeId, sessionId: SessionId) {
+    self._meta = _meta
+    self.modeId = modeId
+    self.sessionId = sessionId
+  }
 }
 
 /// Response to `session/set_mode` method.
 public struct SetSessionModeResponse: Codable, Sendable {
   public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Request parameters for setting a session model.
+public struct SetSessionModelRequest: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+  /// The ID of the model to set.
+  public let modelId: ModelId
+  /// The ID of the session to set the model for.
+  public let sessionId: SessionId
+
+  public init(_meta: [String: AnyCodable]? = nil, modelId: ModelId, sessionId: SessionId) {
+    self._meta = _meta
+    self.modelId = modelId
+    self.sessionId = sessionId
+  }
+}
+
+/// **UNSTABLE**
+///
+/// This capability is not part of the spec yet, and may be removed or changed at any point.
+///
+/// Response to `session/set_model` method.
+public struct SetSessionModelResponse: Codable, Sendable {
+  /// The _meta property is reserved by ACP to allow clients and agents to attach additional
+  /// metadata to their interactions. Implementations MUST NOT make assumptions about values at
+  /// these keys.
+  ///
+  /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+  public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 public enum StopReason: String, Codable, Sendable {
@@ -1670,6 +2838,11 @@ public struct Terminal: Codable, Sendable {
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
   public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, terminalId: String) {
+    self._meta = _meta
+    self.terminalId = terminalId
+  }
 }
 
 /// Exit status of a terminal command.
@@ -1684,6 +2857,12 @@ public struct TerminalExitStatus: Codable, Sendable {
   public let exitCode: Int?
   /// The signal that terminated the process (may be null if exited normally).
   public let signal: String?
+
+  public init(_meta: [String: AnyCodable]? = nil, exitCode: Int? = nil, signal: String? = nil) {
+    self._meta = _meta
+    self.exitCode = exitCode
+    self.signal = signal
+  }
 }
 
 /// Request to get the current output and status of a terminal.
@@ -1698,6 +2877,12 @@ public struct TerminalOutputRequest: Codable, Sendable {
   public let sessionId: SessionId
   /// The ID of the terminal to get output from.
   public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId, terminalId: String) {
+    self._meta = _meta
+    self.sessionId = sessionId
+    self.terminalId = terminalId
+  }
 }
 
 /// Response containing the terminal output and exit status.
@@ -1714,6 +2899,16 @@ public struct TerminalOutputResponse: Codable, Sendable {
   public let output: String
   /// Whether the output was truncated due to byte limits.
   public let truncated: Bool
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, exitStatus: TerminalExitStatus? = nil, output: String,
+    truncated: Bool
+  ) {
+    self._meta = _meta
+    self.exitStatus = exitStatus
+    self.output = output
+    self.truncated = truncated
+  }
 }
 
 public enum ToolCallContent: Codable, Sendable {
@@ -1797,6 +2992,12 @@ public struct ToolCallLocation: Codable, Sendable {
   public let line: Int?
   /// The file path being accessed or modified.
   public let path: String
+
+  public init(_meta: [String: AnyCodable]? = nil, line: Int? = nil, path: String) {
+    self._meta = _meta
+    self.line = line
+    self.path = path
+  }
 }
 
 public enum ToolCallStatus: String, Codable, Sendable {
@@ -1831,6 +3032,12 @@ public struct WaitForTerminalExitRequest: Codable, Sendable {
   public let sessionId: SessionId
   /// The ID of the terminal to wait for.
   public let terminalId: String
+
+  public init(_meta: [String: AnyCodable]? = nil, sessionId: SessionId, terminalId: String) {
+    self._meta = _meta
+    self.sessionId = sessionId
+    self.terminalId = terminalId
+  }
 }
 
 /// Response containing the exit status of a terminal command.
@@ -1845,6 +3052,12 @@ public struct WaitForTerminalExitResponse: Codable, Sendable {
   public let exitCode: Int?
   /// The signal that terminated the process (may be null if exited normally).
   public let signal: String?
+
+  public init(_meta: [String: AnyCodable]? = nil, exitCode: Int? = nil, signal: String? = nil) {
+    self._meta = _meta
+    self.exitCode = exitCode
+    self.signal = signal
+  }
 }
 
 /// Request to write content to a text file.
@@ -1862,7 +3075,16 @@ public struct WriteTextFileRequest: Codable, Sendable {
   /// Absolute path to the file to write.
   public let path: String
   /// The session ID for this request.
-  let sessionId: SessionId
+  public let sessionId: SessionId
+
+  public init(
+    _meta: [String: AnyCodable]? = nil, content: String, path: String, sessionId: SessionId
+  ) {
+    self._meta = _meta
+    self.content = content
+    self.path = path
+    self.sessionId = sessionId
+  }
 }
 
 /// Response to `fs/write_text_file`
@@ -1873,6 +3095,10 @@ public struct WriteTextFileResponse: Codable, Sendable {
   ///
   /// See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
   public let _meta: [String: AnyCodable]?
+
+  public init(_meta: [String: AnyCodable]? = nil) {
+    self._meta = _meta
+  }
 }
 
 public enum AgentNotificationParams: Codable, Sendable {
@@ -1988,16 +3214,21 @@ public enum AgentRequestParams: Codable, Sendable {
   }
 }
 
-enum ResultOption: Codable {
+public enum ResultOption: Codable, Sendable {
   case initializeResponse(InitializeResponse)
   case authenticateResponse(AuthenticateResponse)
   case newSessionResponse(NewSessionResponse)
   case loadSessionResponse(LoadSessionResponse)
+  case listSessionsResponse(ListSessionsResponse)
+  case forkSessionResponse(ForkSessionResponse)
+  case resumeSessionResponse(ResumeSessionResponse)
   case setSessionModeResponse(SetSessionModeResponse)
+  case setSessionConfigOptionResponse(SetSessionConfigOptionResponse)
   case promptResponse(PromptResponse)
+  case setSessionModelResponse(SetSessionModelResponse)
   case extResponse(ExtResponse)
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let value = try? container.decode(InitializeResponse.self) {
       self = .initializeResponse(value)
@@ -2015,12 +3246,32 @@ enum ResultOption: Codable {
       self = .loadSessionResponse(value)
       return
     }
+    if let value = try? container.decode(ListSessionsResponse.self) {
+      self = .listSessionsResponse(value)
+      return
+    }
+    if let value = try? container.decode(ForkSessionResponse.self) {
+      self = .forkSessionResponse(value)
+      return
+    }
+    if let value = try? container.decode(ResumeSessionResponse.self) {
+      self = .resumeSessionResponse(value)
+      return
+    }
     if let value = try? container.decode(SetSessionModeResponse.self) {
       self = .setSessionModeResponse(value)
       return
     }
+    if let value = try? container.decode(SetSessionConfigOptionResponse.self) {
+      self = .setSessionConfigOptionResponse(value)
+      return
+    }
     if let value = try? container.decode(PromptResponse.self) {
       self = .promptResponse(value)
+      return
+    }
+    if let value = try? container.decode(SetSessionModelResponse.self) {
+      self = .setSessionModelResponse(value)
       return
     }
     if let value = try? container.decode(ExtResponse.self) {
@@ -2033,7 +3284,7 @@ enum ResultOption: Codable {
         codingPath: decoder.codingPath, debugDescription: "No matching type for ResultOption"))
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .initializeResponse(let value):
@@ -2044,9 +3295,19 @@ enum ResultOption: Codable {
       try container.encode(value)
     case .loadSessionResponse(let value):
       try container.encode(value)
+    case .listSessionsResponse(let value):
+      try container.encode(value)
+    case .forkSessionResponse(let value):
+      try container.encode(value)
+    case .resumeSessionResponse(let value):
+      try container.encode(value)
     case .setSessionModeResponse(let value):
       try container.encode(value)
+    case .setSessionConfigOptionResponse(let value):
+      try container.encode(value)
     case .promptResponse(let value):
+      try container.encode(value)
+    case .setSessionModelResponse(let value):
       try container.encode(value)
     case .extResponse(let value):
       try container.encode(value)
@@ -2054,11 +3315,11 @@ enum ResultOption: Codable {
   }
 }
 
-enum ClientNotificationParams: Codable {
+public enum ClientNotificationParams: Codable, Sendable {
   case cancelNotification(CancelNotification)
   case extNotification(ExtNotification)
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let value = try? container.decode(CancelNotification.self) {
       self = .cancelNotification(value)
@@ -2075,7 +3336,7 @@ enum ClientNotificationParams: Codable {
         debugDescription: "No matching type for ClientNotificationParams"))
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .cancelNotification(let value):
@@ -2086,16 +3347,21 @@ enum ClientNotificationParams: Codable {
   }
 }
 
-enum ClientRequestParams: Codable {
+public enum ClientRequestParams: Codable, Sendable {
   case initializeRequest(InitializeRequest)
   case authenticateRequest(AuthenticateRequest)
   case newSessionRequest(NewSessionRequest)
   case loadSessionRequest(LoadSessionRequest)
+  case listSessionsRequest(ListSessionsRequest)
+  case forkSessionRequest(ForkSessionRequest)
+  case resumeSessionRequest(ResumeSessionRequest)
   case setSessionModeRequest(SetSessionModeRequest)
+  case setSessionConfigOptionRequest(SetSessionConfigOptionRequest)
   case promptRequest(PromptRequest)
+  case setSessionModelRequest(SetSessionModelRequest)
   case extRequest(ExtRequest)
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let value = try? container.decode(InitializeRequest.self) {
       self = .initializeRequest(value)
@@ -2113,12 +3379,32 @@ enum ClientRequestParams: Codable {
       self = .loadSessionRequest(value)
       return
     }
+    if let value = try? container.decode(ListSessionsRequest.self) {
+      self = .listSessionsRequest(value)
+      return
+    }
+    if let value = try? container.decode(ForkSessionRequest.self) {
+      self = .forkSessionRequest(value)
+      return
+    }
+    if let value = try? container.decode(ResumeSessionRequest.self) {
+      self = .resumeSessionRequest(value)
+      return
+    }
     if let value = try? container.decode(SetSessionModeRequest.self) {
       self = .setSessionModeRequest(value)
       return
     }
+    if let value = try? container.decode(SetSessionConfigOptionRequest.self) {
+      self = .setSessionConfigOptionRequest(value)
+      return
+    }
     if let value = try? container.decode(PromptRequest.self) {
       self = .promptRequest(value)
+      return
+    }
+    if let value = try? container.decode(SetSessionModelRequest.self) {
+      self = .setSessionModelRequest(value)
       return
     }
     if let value = try? container.decode(ExtRequest.self) {
@@ -2132,7 +3418,7 @@ enum ClientRequestParams: Codable {
       ))
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
     case .initializeRequest(let value):
@@ -2143,9 +3429,19 @@ enum ClientRequestParams: Codable {
       try container.encode(value)
     case .loadSessionRequest(let value):
       try container.encode(value)
+    case .listSessionsRequest(let value):
+      try container.encode(value)
+    case .forkSessionRequest(let value):
+      try container.encode(value)
+    case .resumeSessionRequest(let value):
+      try container.encode(value)
     case .setSessionModeRequest(let value):
       try container.encode(value)
+    case .setSessionConfigOptionRequest(let value):
+      try container.encode(value)
     case .promptRequest(let value):
+      try container.encode(value)
+    case .setSessionModelRequest(let value):
       try container.encode(value)
     case .extRequest(let value):
       try container.encode(value)
@@ -2164,117 +3460,46 @@ public enum Role: String, Codable, Sendable {
   case user = "user"
 }
 
-public struct AnyCodable: Codable, Sendable {
-  enum Value: Sendable {
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case bool(Bool)
-    case dictionary([String: AnyCodable])
-    case array([AnyCodable])
-    case null
-  }
+public struct AnyCodable: Codable, @unchecked Sendable {
+  public let value: Any
 
-  let value: Value
-
-  init(_ value: Any) {
-    if let intValue = value as? Int {
-      self.value = .int(intValue)
-    } else if let doubleValue = value as? Double {
-      self.value = .double(doubleValue)
-    } else if let stringValue = value as? String {
-      self.value = .string(stringValue)
-    } else if let boolValue = value as? Bool {
-      self.value = .bool(boolValue)
-    } else if let dictValue = value as? [String: AnyCodable] {
-      self.value = .dictionary(dictValue)
-    } else if let arrayValue = value as? [AnyCodable] {
-      self.value = .array(arrayValue)
-    } else if let encodableValue = value as? Encodable,
-      let encoded = AnyCodable.wrap(encodableValue)
-    {
-      self = encoded
-    } else {
-      self.value = .null
-    }
+  public init(_ value: Any) {
+    self.value = value
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if let intValue = try? container.decode(Int.self) {
-      value = .int(intValue)
+      value = intValue
     } else if let doubleValue = try? container.decode(Double.self) {
-      value = .double(doubleValue)
+      value = doubleValue
     } else if let stringValue = try? container.decode(String.self) {
-      value = .string(stringValue)
+      value = stringValue
     } else if let boolValue = try? container.decode(Bool.self) {
-      value = .bool(boolValue)
+      value = boolValue
     } else if let dictValue = try? container.decode([String: AnyCodable].self) {
-      value = .dictionary(dictValue)
+      value = dictValue
     } else if let arrayValue = try? container.decode([AnyCodable].self) {
-      value = .array(arrayValue)
-    } else if container.decodeNil() {
-      value = .null
+      value = arrayValue
     } else {
-      value = .null
+      value = NSNull()
     }
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    switch value {
-    case .int(let intValue):
+    if let intValue = value as? Int {
       try container.encode(intValue)
-    case .double(let doubleValue):
+    } else if let doubleValue = value as? Double {
       try container.encode(doubleValue)
-    case .string(let stringValue):
+    } else if let stringValue = value as? String {
       try container.encode(stringValue)
-    case .bool(let boolValue):
+    } else if let boolValue = value as? Bool {
       try container.encode(boolValue)
-    case .dictionary(let dictValue):
+    } else if let dictValue = value as? [String: AnyCodable] {
       try container.encode(dictValue)
-    case .array(let arrayValue):
+    } else if let arrayValue = value as? [AnyCodable] {
       try container.encode(arrayValue)
-    case .null:
-      try container.encodeNil()
-    }
-  }
-
-  private static func wrap(_ encodable: Encodable) -> AnyCodable? {
-    // Encode arbitrary Encodable to JSON and rehydrate into a concrete AnyCodable tree.
-    guard let data = try? JSONEncoder().encode(AnyEncodableBox(encodable)),
-      let jsonObject = try? JSONSerialization.jsonObject(with: data)
-    else { return nil }
-
-    return fromJSONObject(jsonObject)
-  }
-
-  private static func fromJSONObject(_ object: Any) -> AnyCodable {
-    switch object {
-    case let intValue as Int:
-      return AnyCodable(intValue)
-    case let doubleValue as Double:
-      return AnyCodable(doubleValue)
-    case let stringValue as String:
-      return AnyCodable(stringValue)
-    case let boolValue as Bool:
-      return AnyCodable(boolValue)
-    case let dictValue as [String: Any]:
-      let mapped = dictValue.mapValues { fromJSONObject($0) }
-      return AnyCodable(mapped)
-    case let arrayValue as [Any]:
-      let mapped = arrayValue.map { fromJSONObject($0) }
-      return AnyCodable(mapped)
-    default:
-      return AnyCodable(() as Any)
-    }
-  }
-
-  private struct AnyEncodableBox: Encodable {
-    let wrapped: Encodable
-    init(_ wrapped: Encodable) { self.wrapped = wrapped }
-    func encode(to encoder: Encoder) throws {
-      try wrapped.encode(to: encoder)
     }
   }
 }
