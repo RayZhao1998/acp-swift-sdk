@@ -8,45 +8,29 @@ public actor ClientSideConnection: Agent {
     let requestHandler: Connection.RequestHandler = { method, params in
       switch method {
       case ClientMethod.sessionRequestPermission.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          RequestPermissionRequest.self, from: JSONEncoder().encode(params))
-        return try await self.client.requestPermission(params: decodedParams)
+        return try await self.client.requestPermission(
+          params: decodeParams(params, as: RequestPermissionRequest.self))
       case ClientMethod.fsWriteTextFile.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          WriteTextFileRequest.self, from: JSONEncoder().encode(params))
-        return try await self.client.writeTextFile(params: decodedParams)
+        return try await self.client.writeTextFile(
+          params: decodeParams(params, as: WriteTextFileRequest.self))
       case ClientMethod.fsReadTextFile.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          ReadTextFileRequest.self, from: JSONEncoder().encode(params))
-        return try await self.client.readTextFile(params: decodedParams)
+        return try await self.client.readTextFile(
+          params: decodeParams(params, as: ReadTextFileRequest.self))
       case ClientMethod.terminalCreate.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          CreateTerminalRequest.self, from: JSONEncoder().encode(params))
-        return try await self.client.createTerminal(params: decodedParams)
+        return try await self.client.createTerminal(
+          params: decodeParams(params, as: CreateTerminalRequest.self))
       case ClientMethod.terminalOutput.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          TerminalOutputRequest.self,
-          from: JSONEncoder()
-            .encode(params))
-        return try await self.client.terminalOutput(params: decodedParams)
+        return try await self.client.terminalOutput(
+          params: decodeParams(params, as: TerminalOutputRequest.self))
       case ClientMethod.terminalRelease.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          ReleaseTerminalRequest.self,
-          from: JSONEncoder()
-            .encode(params))
-        return try await self.client.releaseTerminal(params: decodedParams)
+        return try await self.client.releaseTerminal(
+          params: decodeParams(params, as: ReleaseTerminalRequest.self))
       case ClientMethod.terminalWaitForExit.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          WaitForTerminalExitRequest.self,
-          from: JSONEncoder()
-            .encode(params))
-        return try await self.client.waitForTerminalExit(params: decodedParams)
+        return try await self.client.waitForTerminalExit(
+          params: decodeParams(params, as: WaitForTerminalExitRequest.self))
       case ClientMethod.terminalKill.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          KillTerminalCommandRequest.self,
-          from: JSONEncoder()
-            .encode(params))
-        return try await self.client.killTerminal(params: decodedParams)
+        return try await self.client.killTerminal(
+          params: decodeParams(params, as: KillTerminalCommandRequest.self))
       default:
         throw ACPError.methodNotFound(method)
       }
@@ -55,9 +39,7 @@ public actor ClientSideConnection: Agent {
     let notificationHandler: Connection.NotificationHandler = { method, params in
       switch method {
       case ClientMethod.sessionUpdate.rawValue:
-        let decodedParams = try JSONDecoder().decode(
-          SessionNotification.self, from: JSONEncoder().encode(params))
-        try await self.client.sessionUpdate(params: decodedParams)
+        try await self.client.sessionUpdate(params: decodeParams(params, as: SessionNotification.self))
       default:
         break
       }
