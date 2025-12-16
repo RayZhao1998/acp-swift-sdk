@@ -103,7 +103,7 @@ extension Agent {
   public func loadSession(
     _ params: LoadSessionRequest
   ) async throws -> LoadSessionResponse {
-    throw ACPError.methodNotFound("session/load")
+    throw ACPError.methodNotFound(AgentMethod.sessionLoad.rawValue)
   }
 
   
@@ -123,7 +123,7 @@ extension Agent {
   public func forkSession(
     _ params: ForkSessionRequest,
   ) async throws -> ForkSessionResponse {
-    throw ACPError.methodNotFound("session/fork")
+    throw ACPError.methodNotFound(AgentMethod.sessionFork.rawValue)
   }
 
   ///
@@ -142,7 +142,7 @@ extension Agent {
   public func listSessions(
     _ params: ListSessionsRequest,
   ) async throws -> ListSessionsResponse {
-    throw ACPError.methodNotFound("session/list")
+    throw ACPError.methodNotFound(AgentMethod.sessionList.rawValue)
   }
 
   ///
@@ -162,7 +162,7 @@ extension Agent {
   public func resumeSession(
     _ params: ResumeSessionRequest,
   ) async throws -> ResumeSessionResponse {
-    throw ACPError.methodNotFound("session/resume")
+    throw ACPError.methodNotFound(AgentMethod.sessionResume.rawValue)
   }
 
   /// Sets the operational mode for a session.
@@ -181,7 +181,7 @@ extension Agent {
   func setSessionMode(
     _ params: SetSessionModeRequest
   ) async throws -> SetSessionModeResponse {
-    throw ACPError.methodNotFound("session/set_mode")
+    throw ACPError.methodNotFound(AgentMethod.sessionSetMode.rawValue)
   }
 
   ///
@@ -196,7 +196,7 @@ extension Agent {
   public func setSessionModel(
     _ params: SetSessionModelRequest,
   ) async throws -> SetSessionModelResponse {
-    throw ACPError.methodNotFound("session/set_model")
+    throw ACPError.methodNotFound(AgentMethod.sessionSetModel.rawValue)
   }
 
   ///
@@ -211,7 +211,7 @@ extension Agent {
     method: String,
     params: AnyCodable,
   ) async throws -> AnyCodable {
-    throw ACPError.methodNotFound("extMethod")
+    throw ACPError.methodNotFound(method)
   }
 
   ///
@@ -223,6 +223,6 @@ extension Agent {
     method: String,
     params: AnyCodable,
   ) async throws {
-    throw ACPError.methodNotFound("extNotification")
+    throw ACPError.methodNotFound(method)
   }
 }
