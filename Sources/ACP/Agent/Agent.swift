@@ -31,20 +31,6 @@ public protocol Agent: Actor {
     _ params: NewSessionRequest
   ) async throws -> NewSessionResponse
 
-  /// Loads an existing session to resume a previous conversation.
-  ///
-  /// This method is only available if the agent advertises the `loadSession` capability.
-  ///
-  /// The agent should:
-  /// - Restore the session context and conversation history
-  /// - Connect to the specified MCP servers
-  /// - Stream the entire conversation history back to the client via notifications
-  ///
-  /// See protocol docs: [Loading Sessions](https://agentclientprotocol.com/protocol/session-setup#loading-sessions)
-  func loadSession(
-    _ params: LoadSessionRequest
-  ) async throws -> LoadSessionResponse
-
   /// Processes a user prompt within a session.
   ///
   /// This method handles the whole lifecycle of a prompt:
@@ -106,7 +92,6 @@ extension Agent {
     throw ACPError.methodNotFound(AgentMethod.sessionLoad.rawValue)
   }
 
-  
   /// **UNSTABLE**
   ///
   /// This capability is not part of the spec yet, and may be removed or changed at any point.

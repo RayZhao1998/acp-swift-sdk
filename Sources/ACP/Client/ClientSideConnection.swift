@@ -39,7 +39,8 @@ public actor ClientSideConnection: Agent {
     let notificationHandler: Connection.NotificationHandler = { method, params in
       switch method {
       case ClientMethod.sessionUpdate.rawValue:
-        try await self.client.sessionUpdate(params: decodeParams(params, as: SessionNotification.self))
+        try await self.client.sessionUpdate(
+          params: decodeParams(params, as: SessionNotification.self))
       default:
         break
       }
@@ -79,5 +80,31 @@ public actor ClientSideConnection: Agent {
 
   public func authenticate(_ params: AuthenticateRequest) async throws -> AuthenticateResponse {
     try await connection.sendRequest(method: AgentMethod.authenticate.rawValue, params: params)
+  }
+
+  public func forkSession(_ params: ForkSessionRequest) async throws -> ForkSessionResponse {
+    try await connection.sendRequest(method: AgentMethod.sessionFork.rawValue, params: params)
+  }
+
+  public func listSessions(_ params: ListSessionsRequest) async throws -> ListSessionsResponse {
+    try await connection.sendRequest(method: AgentMethod.sessionList.rawValue, params: params)
+  }
+
+  public func resumeSession(_ params: ResumeSessionRequest) async throws -> ResumeSessionResponse {
+    try await connection.sendRequest(method: AgentMethod.sessionResume.rawValue, params: params)
+  }
+
+  public func setSessionMode(_ params: SetSessionModeRequest) async throws
+    -> SetSessionModeResponse
+  {
+    try await connection.sendRequest(
+      method: AgentMethod.sessionSetMode.rawValue, params: params)
+  }
+
+  public func setSessionModel(_ params: SetSessionModelRequest) async throws
+    -> SetSessionModelResponse
+  {
+    try await connection.sendRequest(
+      method: AgentMethod.sessionSetModel.rawValue, params: params)
   }
 }
