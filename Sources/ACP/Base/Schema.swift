@@ -3599,14 +3599,14 @@ public struct AnyCodable: Codable, Sendable {
 
   private static func fromJSONObject(_ object: Any) -> AnyCodable {
     switch object {
+    case let boolValue as Bool:
+      return AnyCodable(boolValue)
     case let intValue as Int:
       return AnyCodable(intValue)
     case let doubleValue as Double:
       return AnyCodable(doubleValue)
     case let stringValue as String:
       return AnyCodable(stringValue)
-    case let boolValue as Bool:
-      return AnyCodable(boolValue)
     case let dictValue as [String: Any]:
       let mapped = dictValue.mapValues { fromJSONObject($0) }
       return AnyCodable(mapped)
